@@ -18,47 +18,82 @@ my $po=-1; # (
 my $pc=-1; # )
 my $ca=-1; # ,
 my $co=-1; # :
-my $min=-1; 
 
-push @arr="n_$n";
-my $prev="n_$n";
+push @arr,"n_$n";
 
-for(my $i=0; $i<10; $i++){
-    $po=index($file,"(");
-    $pc=index($file,")");
-    $ca=index($file,",");
-    $co=index($file,":");
-    print "$po, $pc, $ca\t";
-    if($po<0){
-	$po=length($file);
+my $ch; 
+my $pos=0;
+sub findNext{
+    $po=index($file,"(");   $pc=index($file,")");
+    $ca=index($file,",");   $co=index($file,":");    
+#    print "$po\t$pc\t$ca\t$ca\t$co\n";
+    if($po<0){    $po=length($file);   }
+    if($pc<0){    $pc=length($file);   }
+    if($ca<0){    $ca=length($file);   }
+    if($co<0){    $co=length($file);   }
+    if($po<$pc && $po<$ca && $po<$co){ #(
+	$ch='(';
+	$pos=$po;
+    }elsif($pc<$po && $pc<$ca && $pc<$co){  # )
+	$ch=')';
+	$pos=$pc;
+    }elsif($ca<$pc && $ca<$po && $ca<$co){  # ,
+	$ch=',';
+	$pos=$ca;
+    }elsif($co<$pc && $co<$po && $co<$ca){  # : 
+	$ch=':';
+	$pos=$co;
     }
-    if($pc<0){
-	$pc=length($file);
-    }
-    if($ca<0){
-	$ca=length($file);
-    }
-    if($co<0){
-	$co=length($file);
-    }
-    if($po<$pc && $po<$ca && $po<$co){
-	print substr($file,0,$po+1),"\n";   	
-	if($po>0){
-	    $prev=substr($file,0,$po);
-	}
-	$file=substr($file,$po+1,length($file));
+};
+
+for(;$pos<length($file);){
+    findNext;
+#    print $ch,"\t",substr($file,0,$pos+1),"\n";
+    if($ch eq '('){
 	$n++;
-	push @arr="n_$n";
-    }elsif($pc<$po && $pc<$ca && $pc<$co){
-	print substr($file,0,$pc+1),"\n";   	
-	$file=substr($file,$pc+1,length($file));
-	$prev=pop @arr;
-    }elsif($ca<$pc && $ca<$po && $ca<$co){
-	print substr($file,0,$ca+1),"\n";   	
-	$file=substr($file,$ca+1,length($file));
-    }elsif($co<$pc && $co<$po && $co<$ca){
-	print substr($file,0,$co+1),"\n";   	
-	$file=substr($file,$co+1,length($file));
+	push @arr, "n_$n";
+#	print @arr,"(\n";
+	$file=substr($file,$pos+1,length($file));
+    }elsif($ch eq ')'){
+#	print ")\t\t",$arr[-2],"\t",$arr[-1],"\t";
+	print $arr[-2],"\t",$arr[-1],"\t";
+	$file=substr($file,$pos+1,length($file));
+	findNext;
+	if($ch eq ':'){
+	    $file=substr($file,$pos+1,length($file));
+	    findNext;
+	    print substr($file,0,$pos),"\n";
+	    $file=substr($file,$pos+1,length($file));
+	}else{
+	    print "0.0\n";
+	}
+	pop @arr;
+#	print @arr,")\n";
+    }elsif($ch eq ','){
+	if($pos>0){
+#	    print ",\t\t",$arr[-1],"\t",substr($file,0,$pos),"\n";
+	    print $arr[-1],"\t",substr($file,0,$pos),"\n";
+	}
+	$file=substr($file,$pos+1,length($file));
+    }elsif($ch eq ':'){
+	if($pos>0){
+#	    print ":\t\t",$arr[-1],"\t",substr($file,0,$pos),"\t";
+	    print $arr[-1],"\t",substr($file,0,$pos),"\t";
+	    $file=substr($file,$pos+1,length($file));
+	    findNext;
+	    print substr($file,0,$pos),"\n";
+	    $file=substr($file,$pos,length($file));
+	}else{
+#	    print ")\t\t",$arr[-2],"\t",$arr[-1],"\t";
+	    print $arr[-2],"\t",$arr[-1],"\t";
+	    $file=substr($file,$pos+1,length($file));
+	    findNext;
+	    print substr($file,0,$pos),"\n";
+	    if($ch eq ')'){
+		pop @arr;
+	    }
+	    $file=substr($file,$pos,length($file));
+	}
     }
 }
 
