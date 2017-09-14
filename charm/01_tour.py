@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 
 import argparse
+import re
+re.UNICODE
 
-# parse arguments
+# ============================= Arg Parse
 parser = argparse.ArgumentParser(description='Python feature tour.')
 
 parser.add_argument('integers', metavar='N', type=int, nargs='+',
@@ -13,7 +15,13 @@ parser.add_argument('--sum', dest='accumulate', action='store_const',
 
 args = parser.parse_args()
 
+# ============================= Functions
+def hithere( s ):
+    print "hi there! ",s
+    return
 
+
+# ============================= Analysis
 # echo statements
 print "Hello world"
 
@@ -91,3 +99,14 @@ print ('john' in tinydict.values())
 # control statements
 
 if(1==1):print "Values are equal"
+
+# regular expressions
+
+print re.split('(\W+)',"...hi, wonder..")
+
+a=re.compile('\d\d\d\d')
+b=re.compile('\c\c\c\c')
+print a.match("hello46467",1)
+print b.match("hello46467",1)
+
+hithere("joe")
